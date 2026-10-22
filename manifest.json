@@ -1,0 +1,72 @@
+{
+  "id": "/",
+  "name": "SpeekBetter — 口语练习室",
+  "short_name": "SpeekBetter",
+  "description": "生活对话、雅思、托福、四六级英语口语发音练习。听示范、录音、看逐词反馈，纯前端运行，结果仅保存在本地。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f5ef",
+  "theme_color": "#17342c",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%2317342c%27/%3E%3Cpath d=%27M10 8h2M14 5v6M18 10v4M22 14h-2M16 22c4 0 7-2.8 7-7 0-5.2-4.5-8.6-7-13-2.5 4.4-7 7.8-7 13 0 4.2 3 7 7 7Z%27 stroke=%27%23d7ff67%27 fill=%27none%27 stroke-width=%271.5%27 stroke-linecap=%27round%27/%3E%3C/svg%3E",
+      "sizes": "32x32",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2732%27 fill=%27%2317342c%27/%3E%3Cpath d=%27M64 48h12M84 30v36M108 60v24M132 84h-12M96 132c24 0 42-16.8 42-42 0-31.2-27-51.6-42-78-15 26.4-42 46.8-42 78 0 25.2 18 42 42 42Z%27 stroke=%27%23d7ff67%27 fill=%27none%27 stroke-width=%279%27 stroke-linecap=%27round%27/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27%3E%3Crect width=%27512%27 height=%27512%27 rx=%2780%27 fill=%27%2317342c%27/%3E%3Cpath d=%27M176 128h32M224 80v96M288 160v64M352 224h-32M256 352c64 0 112-44.8 112-112 0-83.2-72-137.6-112-208-40 70.4-112 124.8-112 208 0 67.2 48 112 112 112Z%27 stroke=%27%23d7ff67%27 fill=%27none%27 stroke-width=%2724%27 stroke-linecap=%27round%27/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 390 844%27%3E%3Crect width=%27390%27 height=%27844%27 fill=%27%23f3f5ef%27/%3E%3Crect x=%2720%27 y=%2760%27 width=%27350%27 height=%2740%27 rx=%274%27 fill=%27%23cad0c5%27/%3E%3Crect x=%2720%27 y=%27130%27 width=%27350%27 height=%27200%27 rx=%278%27 fill=%27%23fbfcf8%27/%3E%3Crect x=%2740%27 y=%27360%27 width=%27300%27 height=%2760%27 rx=%274%27 fill=%27%23cad0c5%27/%3E%3Crect x=%2720%27 y=%27450%27 width=%27350%27 height=%27280%27 rx=%278%27 fill=%27%23fbfcf8%27/%3E%3Crect x=%2740%27 y=%27760%27 width=%27300%27 height=%2730%27 rx=%274%27 fill=%27%23cad0c5%27/%3E%3C/svg%3E",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "label": "SpeekBetter 练习室主界面"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 390 844%27%3E%3Crect width=%27390%27 height=%27844%27 fill=%27%23f3f5ef%27/%3E%3Crect x=%2720%27 y=%2760%27 width=%27350%27 height=%2740%27 rx=%274%27 fill=%27%23cad0c5%27/%3E%3Crect x=%2720%27 y=%27130%27 width=%27350%27 height=%27500%27 rx=%278%27 fill=%27%23fbfcf8%27/%3E%3Crect x=%2740%27 y=%27660%27 width=%27300%27 height=%2740%27 rx=%274%27 fill=%27%23cad0c5%27/%3E%3C/svg%3E",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "label": "SpeekBetter 题库与模块列表"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "开始练习",
+      "short_name": "练习",
+      "description": "打开口语练习室，选择场景开始跟读",
+      "url": "./index.html#view-studio"
+    },
+    {
+      "name": "口语题库",
+      "short_name": "题库",
+      "description": "浏览生活对话、雅思、托福等练习模块",
+      "url": "./index.html#view-library"
+    },
+    {
+      "name": "学习进度",
+      "short_name": "进度",
+      "description": "查看练习记录、时长和平均分",
+      "url": "./index.html#view-progress"
+    }
+  ],
+  "categories": [
+    "education",
+    "reference"
+  ],
+  "lang": "zh-CN",
+  "iarc_rating_id": "e84b172d-7692-4786-8c9c-6d5e8f1c3a3b"
+}

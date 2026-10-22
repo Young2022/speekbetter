@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#17342c">
+  <meta name="description" content="SpeekBetter 口语练习室 — 生活对话、雅思、托福、四六级发音练习。听示范、录音、看逐词反馈，纯前端运行，结果仅保存在本地。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SpeekBetter">
+  <meta property="og:title" content="SpeekBetter — 口语练习室">
+  <meta property="og:description" content="生活对话、雅思、托福、四六级发音练习。听示范、录音、看逐词反馈，纯前端运行。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://speekbetter.local/">
+  <meta property="og:site_name" content="SpeekBetter">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="SpeekBetter — 口语练习室">
+  <meta name="twitter:description" content="生活对话、雅思、托福、四六级发音练习。听示范、录音、看逐词反馈，纯前端运行。">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2317342c'/%3E%3Cpath d='M10 8h2M14 5v6M18 10v4M22 14h-2M16 22c4 0 7-2.8 7-7 0-5.2-4.5-8.6-7-13-2.5 4.4-7 7.8-7 13 0 4.2 3 7 7 7Z' stroke='%23d7ff67' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2317342c'/%3E%3Cpath d='M10 8h2M14 5v6M18 10v4M22 14h-2M16 22c4 0 7-2.8 7-7 0-5.2-4.5-8.6-7-13-2.5 4.4-7 7.8-7 13 0 4.2 3 7 7 7Z' stroke='%23d7ff67' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="print.css" media="print">
+  <title>SpeekBetter — 口语练习室</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "SpeekBetter",
+    "url": "https://speekbetter.local/",
+    "description": "英语口语发音练习室，支持生活对话、雅思、托福、四六级场景。",
+    "address": { "@type": "PostalAddress", "addressLocality": "本地运行" }
+  }
+  </script>
+</head>
+<body class="app-loading">
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+  <noscript>
+    <div class="noscript-banner">
+      <p>SpeekBetter 需要启用 JavaScript 才能运行。请在浏览器设置中允许 JavaScript 后刷新页面。</p>
+    </div>
+  </noscript>
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M3 12h2M7 9v6M11 5v14M15 7v10M19 10v4M22 12h-1"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 19v3M8 22h8"/></symbol>
+    <symbol id="i-library" viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v18H6.5A2.5 2.5 0 0 1 4 18.5Zm0 0A2.5 2.5 0 0 1 6.5 17H20M8 7h8M8 11h6"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+    <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4 14a8 8 0 0 1 16 0M4 14h3v6H5a1 1 0 0 1-1-1v-5Zm16 0h-3v6h2a1 1 0 0 0 1-1v-5Z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M14 6l6 6-6 6"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 22c4 0 7-2.8 7-7 0-5.2-4.5-8.6-7-13-2.5 4.4-7 7.8-7 13 0 4.2 3 7 7 7Z"/><path d="M9 16c0 2 1.3 3 3 3s3-1 3-3c0-1.6-1.5-3.2-3-5-1.5 1.8-3 3.4-3 5Z"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3-1.3 4.2A6.7 6.7 0 0 1 6.2 11L2 12l4.2 1.3a6.7 6.7 0 0 1 4.5 4.5L12 22l1.3-4.2a6.7 6.7 0 0 1 4.5-4.5L22 12l-4.2-1.3a6.7 6.7 0 0 1-4.5-4.5Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7h-5V2M20 7a9 9 0 1 0 1 9"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4Zm4 4a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M8 9h8M8 13h5"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M8.5 14.5A6 6 0 1 1 15.5 14.5c-.8.6-1.5 1.5-1.5 2.5h-4c0-1-.7-1.9-1.5-2.5Z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17h.01"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 3.69 6 7 6s7-2.69 7-6c0-2.14-1.36-3.96-3.33-4.82C18.36 10.21 19.79 8.8 19.35 10.04"/></symbol>
+  </svg>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <button class="brand" data-view="studio" aria-label="SpeekBetter studio">
+        <span class="brand-mark"><svg class="icon"><use href="#i-wave"></use></svg></span>
+        <span class="brand-copy"><strong>SpeekBetter</strong><small>口语练习室</small></span>
+      </button>
+
+      <div class="nav-label">学习空间</div>
+      <nav class="nav-list">
+        <button class="nav-button is-active" data-view="studio"><svg class="icon"><use href="#i-mic"></use></svg><span>练习室</span></button>
+        <button class="nav-button" data-view="library"><svg class="icon"><use href="#i-library"></use></svg><span>口语题库</span></button>
+        <button class="nav-button" data-view="progress"><svg class="icon"><use href="#i-chart"></use></svg><span>学习进度</span></button>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+
+      <section class="daily-goal" aria-label="今日练习目标">
+        <div class="goal-top">
+          <div><strong>今日练习</strong><span id="goalText">0 / 10 分钟</span></div>
+          <div class="goal-ring" id="goalRing" style="--value:0"><span id="goalPercent">0%</span></div>
+        </div>
+        <div class="goal-track"><span id="goalBar"></span></div>
+      </section>
+
+      <button class="profile" id="profileButton">
+        <span class="avatar">AL</span>
+        <span><strong>Alex Lee</strong><small id="profileMeta">新的练习计划</small></span>
+        <svg class="icon"><use href="#i-chevron"></use></svg>
+      </button>
+    </aside>
+
+    <main class="main" id="main-content">
+      <header class="topbar">
+        <div class="mobile-brand">
+          <span class="brand-mark"><svg class="icon"><use href="#i-wave"></use></svg></span>
+          <strong>SpeekBetter</strong>
+        </div>
+        <div class="topbar-title">
+          <strong id="pageTitle">练习室</strong>
+        </div>
+        <div class="topbar-actions">
+          <div class="streak"><svg class="icon"><use href="#i-flame"></use></svg><span id="streakLabel">连续 0 天</span></div>
+          <button class="icon-button" id="settingsButton" aria-label="打开麦克风与隐私设置" title="设置">
+            <svg class="icon"><use href="#i-settings"></use></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="view is-active" id="view-studio" aria-labelledby="studioTitle">
+          <div class="page-heading">
+            <div>
+              <div class="eyebrow">今日口语练习</div>
+              <h1 id="studioTitle">每一次开口，都是进步。</h1>
+              <p>选一个场景，听一遍示范，大声说出来，然后看看哪些词还没发准。</p>
+            </div>
+            <div class="heading-stat"><strong id="averageScore">—</strong><span>练习估分</span></div>
+          </div>
+
+          <div class="studio-layout">
+            <section class="studio" id="studio" aria-label="当前口语练习">
+              <div class="studio-head">
+                <div class="studio-track"><span class="track-dot" id="trackDot"></span><span id="trackLabel">生活对话</span><span class="studio-separator"></span><span id="partLabel">日常交流</span></div>
+                <div class="studio-state"><span class="state-dot"></span><span id="stateLabel">就绪</span></div>
+              </div>
+
+              <div class="studio-body">
+                <div class="prompt-meta">
+                  <span id="promptIndex">第 01 题</span>
+                  <div class="prompt-meta-side">
+                    <span class="prompt-duration"><svg class="icon"><use href="#i-clock"></use></svg><span id="durationLabel">60 秒作答</span></span>
+                    <span class="compare-mode" id="compareModeBadge" hidden>
+                      <svg class="icon"><use href="#i-target"></use></svg><span id="compareModeText">对比模式</span>
+                    </span>
+                    <div class="prompt-nav">
+                      <button class="prompt-nav-btn is-prev" id="prevPrompt" type="button" title="上一句" aria-label="上一句"><svg class="icon"><use href="#i-chevron"></use></svg><span>上一句</span></button>
+                      <button class="prompt-nav-btn" id="nextPrompt" type="button" title="下一句" aria-label="下一句"><span>下一句</span><svg class="icon"><use href="#i-chevron"></use></svg></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="prompt-wrap">
+                  <h2 id="promptText">Hi, could I get a large oat latte with an extra shot, please?</h2>
+                </div>
+                <div class="inline-result" id="inlineResult" hidden>
+                  <div class="inline-result-head">
+                    <span class="inline-result-title">这一句你的发音</span>
+                    <span class="inline-result-meta" id="inlineResultMeta"></span>
+                  </div>
+                  <p class="inline-result-score" id="inlineResultScore" hidden>
+                    <strong id="inlineResultScoreValue">—</strong><span>评价总分</span>
+                  </p>
+                  <p class="inline-verdict" id="inlineVerdict" hidden>
+                    <span class="inline-verdict-dot"></span><span id="inlineVerdictText"></span>
+                  </p>
+                  <p class="inline-result-heard" id="inlineResultHeard"></p>
+                  <div class="inline-words" id="inlineWords"></div>
+                  <div class="inline-legend" id="inlineLegend" hidden>
+                    <span><i class="dot is-good"></i>接近示范</span>
+                    <span><i class="dot is-weak"></i>略弱</span>
+                    <span><i class="dot is-error"></i>需要改进</span>
+                    <span class="inline-legend-tip">点单词可只听这个词</span>
+                  </div>
+                </div>
+                <div class="live-transcript" id="liveTranscript" aria-live="polite"></div>
+              </div>
+
+              <ol class="step-strip" id="stepStrip" aria-label="本轮步骤">
+                <li class="step-item is-current" data-step="listen">
+                  <button class="step-action" id="stepListen" type="button" title="播放这一句">
+                    <span class="step-index">01</span><span class="step-label">先听示范</span>
+                  </button>
+                </li>
+                <li class="step-item" data-step="record">
+                  <button class="step-action step-action--record" id="recordButton" type="button">
+                    <span class="step-index">02</span><svg class="icon record-stop-icon" id="recordStopIcon" hidden><use href="#i-stop"></use></svg><span id="recordLabel">开始录音</span>
+                  </button>
+                </li>
+              </ol>
+
+              <div class="studio-controls" id="studioControls" hidden>
+                <div class="control-secondary">
+                  <button class="icon-control" id="prepButton" title="开始准备倒计时"><svg class="icon"><use href="#i-clock"></use></svg><span id="prepLabel">准备</span></button>
+                </div>
+              </div>
+
+              <div class="playback-bar" id="playbackBar">
+                <button class="playback-toggle" id="playbackToggle" aria-label="播放你的录音"><svg class="icon"><use href="#i-play"></use></svg></button>
+                <span class="playback-label">你的录音</span>
+                <audio id="playbackAudio" preload="metadata"></audio>
+                <div class="playback-progress"><span id="playbackProgress"></span></div>
+                <span class="playback-time" id="playbackTime">0:00</span>
+              </div>
+
+              <!-- 示范音频不可用时的提示 -->
+              <div class="demo-missing-banner" id="demoMissingBanner" hidden role="alert">
+                <svg class="icon"><use href="#i-alert"></use></svg>
+                <div>
+                  <strong>本句没有示范音频</strong>
+                  <p>示范音频文件 <code>assets/audio/<span id="missingAudioId"></span>.wav</span> 不存在，已切换为 <strong>自评模式</strong>（仅分析你的录音，不与示范对比）。</p>
+                </div>
+                <button class="text-button" id="demoMissingDismiss">知道了</button>
+              </div>
+
+              <!-- file:// 协议提示 -->
+              <div class="file-protocol-banner" id="fileProtocolBanner" hidden role="alert">
+                <svg class="icon"><use href="#i-alert"></use></svg>
+                <div>
+                  <strong>检测到直接打开本地文件</strong>
+                  <p>浏览器会拦截本地音频读取，发音对比功能不可用。请运行 <code>start-server.bat</code> 通过 <code>http://127.0.0.1:</code> 地址访问，即可启用与示范发音的逐词对比。</p>
+                </div>
+                <button class="text-button" id="fileProtocolDismiss">知道了</button>
+              </div>
+            </section>
+          </div>
+
+          <div class="studio-lower">
+            <section class="lower-panel quick-library">
+              <div class="section-head"><div><h2>快速换题</h2><p>换一个口语场景</p></div><button class="text-button" data-view="library">全部模块 <svg class="icon"><use href="#i-arrow"></use></svg></button></div>
+              <div class="quick-list" id="quickList"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="view-library" aria-labelledby="libraryTitle">
+          <div class="page-heading library-heading">
+            <div>
+              <div class="eyebrow">口语练习题库</div>
+              <h1 id="libraryTitle">为下一场对话做好准备。</h1>
+              <p>生活对话，以及贴近考试形式的雅思与托福口语练习。</p>
+            </div>
+            <div class="heading-stat"><strong id="libraryCount">6</strong><span>个模块</span></div>
+          </div>
+
+          <div class="library-toolbar">
+            <div class="filter-row" id="filterRow">
+              <button class="filter is-active" data-filter="all">全部</button>
+              <button class="filter" data-filter="life">生活对话</button>
+              <button class="filter" data-filter="work">职场英语</button>
+              <button class="filter" data-filter="travel">旅行英语</button>
+              <button class="filter" data-filter="cet">四六级</button>
+              <button class="filter" data-filter="ielts">雅思</button>
+              <button class="filter" data-filter="toefl">托福</button>
+            </div>
+            <label class="search-box"><svg class="icon"><use href="#i-search"></use></svg><input id="searchInput" type="search" placeholder="搜索场景或题目" aria-label="搜索题目"></label>
+          </div>
+
+          <div class="level-row" id="levelRow" aria-label="按难度筛选">
+            <span class="level-caption">难度</span>
+            <button class="chip is-active" data-level="all" type="button">全部</button>
+            <button class="chip" data-level="1" type="button">入门</button>
+            <button class="chip" data-level="2" type="button">进阶</button>
+            <button class="chip" data-level="3" type="button">挑战</button>
+          </div>
+
+          <div class="library-meta" id="libraryMeta">共 6 个模块</div>
+          <div class="module-grid" id="moduleGrid"></div>
+        </section>
+
+        <section class="view" id="view-module" aria-labelledby="moduleTitle">
+          <div class="page-heading">
+            <div>
+              <div class="eyebrow">口语模块</div>
+              <h1 id="moduleTitle">模块</h1>
+              <p id="moduleContext"></p>
+            </div>
+            <button class="text-button is-back" data-view="library"><svg class="icon"><use href="#i-arrow"></use></svg> 返回题库</button>
+          </div>
+
+          <div class="module-toolbar">
+            <div class="module-toolbar-info">
+              <strong id="moduleCount">0 句</strong>
+              <span id="moduleHint"></span>
+            </div>
+            <div class="module-toolbar-actions">
+              <button class="primary-small" id="modulePractice">从第一句开始练</button>
+              <button class="ghost-button" id="modulePlayAll">顺序播放</button>
+            </div>
+          </div>
+
+          <ol class="module-list" id="moduleList"></ol>
+        </section>
+
+        <section class="view" id="view-progress" aria-labelledby="progressTitle">
+          <div class="page-heading">
+            <div>
+              <div class="eyebrow">我的口语旅程</div>
+              <h1 id="progressTitle">听得见的进步。</h1>
+              <p>练习次数、开口时长、语速，以及基于转写的练习估分。</p>
+            </div>
+            <button class="primary-small" data-view="studio">再练一轮 <svg class="icon"><use href="#i-arrow"></use></svg></button>
+          </div>
+
+          <div class="learner-bar">
+            <label class="learner-field">
+              <span>我是</span>
+              <input id="learnerName" type="text" maxlength="20" placeholder="学习者名字" autocomplete="off" />
+            </label>
+            <label class="learner-field">
+              <span>查看</span>
+              <select id="learnerSelect"></select>
+            </label>
+            <div class="learner-actions">
+              <button class="ghost-button" id="exportRecords" type="button">导出记录</button>
+              <button class="ghost-button" id="importRecords" type="button">导入记录</button>
+              <input id="importFile" type="file" accept="application/json,.json" hidden />
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card"><span>完成练习</span><strong id="totalRounds">0</strong><small>涵盖三个练习模块</small><svg class="icon"><use href="#i-mic"></use></svg></article>
+            <article class="stat-card"><span>开口时长</span><strong id="totalMinutes">0m</strong><small>累计大声练习时间</small><svg class="icon"><use href="#i-clock"></use></svg></article>
+            <article class="stat-card"><span>平均估分</span><strong id="overallAverage">—</strong><small>依据转写与语速</small><svg class="icon"><use href="#i-target"></use></svg></article>
+            <article class="stat-card"><span>连续练习</span><strong id="progressStreak">0d</strong><small>连续练习天数</small><svg class="icon"><use href="#i-flame"></use></svg></article>
+          </div>
+
+          <div class="progress-layout">
+            <section class="progress-panel">
+              <div class="section-head"><div><h2>本周练习</h2><p>最近七天的练习分钟数</p></div><span class="plain-label" id="weekTotal">0 min</span></div>
+              <div class="weekly-chart" id="weeklyChart"></div>
+            </section>
+            <section class="progress-panel">
+              <div class="section-head"><div><h2>练习分布</h2><p>各模块练习占比</p></div></div>
+              <div class="track-balance" id="trackBalance"></div>
+            </section>
+          </div>
+
+          <section class="progress-panel history-panel">
+            <div class="section-head"><div><h2>练习记录</h2><p>点击右侧按钮可重新练习该题</p></div><button class="text-button dangerless" id="clearHistory">清空记录</button></div>
+            <div class="history-list" id="historyList"></div>
+          </section>
+
+          <section class="progress-panel class-panel">
+            <div class="section-head"><div><h2>班级汇总</h2><p>每个学习者的练习轮次、时长和平均分</p></div></div>
+            <div class="class-list" id="classSummary"></div>
+          </section>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <button class="is-active" data-view="studio"><svg class="icon"><use href="#i-mic"></use></svg><span>练习</span></button>
+    <button data-view="library"><svg class="icon"><use href="#i-library"></use></svg><span>题库</span></button>
+    <button data-view="progress"><svg class="icon"><use href="#i-chart"></use></svg><span>进度</span></button>
+  </nav>
+
+  <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal settings-modal">
+      <div class="modal-head"><div><div class="eyebrow">浏览器设置</div><h2 id="settingsTitle">麦克风与隐私</h2><p>了解这个练习室的工作方式</p></div><button class="icon-button" id="closeSettings" aria-label="关闭设置"><svg class="icon"><use href="#i-x"></use></svg></button></div>
+      <div class="settings-body">
+        <div class="setting-block"><div class="setting-icon"><svg class="icon"><use href="#i-mic"></use></svg></div><div><strong>麦克风权限</strong><p>录音需要麦克风权限。如果被拒绝，请在浏览器的站点权限里允许后重新加载页面。</p></div></div>
+        <div class="setting-block"><div class="setting-icon"><svg class="icon"><use href="#i-shield"></use></svg></div><div><strong>仅本地保存</strong><p>练习结果保存在 localStorage。录音只临时存在于内存中，不会写入历史记录，也不会上传。</p></div></div>
+        <div class="setting-block"><div class="setting-icon"><svg class="icon"><use href="#i-target"></use></svg></div><div><strong>关于两个分数</strong><p>「练习估分」依据转写覆盖率、语速和填充词计算；「语音相似度」来自你的录音与示范音频的声学对齐。两者都不是专业音素级发音评测。</p></div></div>
+        <div class="setting-block"><div class="setting-icon"><svg class="icon"><use href="#i-alert"></use></svg></div><div><strong>需要本地服务器</strong><p>逐词发音对比需要读取示范音频的采样数据。请在项目目录运行 <code>start-server.bat</code>，它会自己找一个空闲端口并打开浏览器（端口会被占用时会自动往后找，比如 8000 常常被 C-Lodop 打印服务占着）；直接双击 index.html 时浏览器会拦截本地音频读取，页面会自动降级为自评模式。</p></div></div>
+      </div>
+      <div class="modal-actions"><button class="primary-small" id="settingsDone">知道了</button></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"><svg class="icon"><use href="#i-spark"></use></svg><span id="toastText"></span></div>
+
+  <!-- PWA 安装提示横幅 -->
+  <div class="pwa-install-banner" id="pwaInstallBanner" role="dialog" aria-label="安装 SpeekBetter 应用">
+    <div class="pwa-install-banner-body">
+      <div class="pwa-install-banner-icon"><svg class="icon"><use href="#i-spark"></use></svg></div>
+      <div class="pwa-install-banner-text">
+        <strong>安装 SpeekBetter</strong>
+        <p>将本应用添加到主屏幕，离线也能打开练习。</p>
+      </div>
+      <div class="pwa-install-banner-actions">
+        <button class="primary-small" id="pwaInstallButton">安装</button>
+        <button class="text-button" id="pwaInstallDismiss">稍后</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 离线状态指示器 -->
+  <div class="offline-indicator" id="offlineIndicator" role="status" aria-live="polite" hidden>
+    <svg class="icon"><use href="#i-cloud"></use></svg><span>当前处于离线状态，部分功能可能受限</span>
+  </div>
+
+  <script src="pronunciation.js"></script>
+  <script src="data/modules.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // 页面就绪后移除加载类，让内容平滑显示
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.classList.remove("app-loading");
+
+      // PWA 安装提示
+      let deferredPrompt = null;
+      const installBanner = document.getElementById("pwaInstallBanner");
+      const installButton = document.getElementById("pwaInstallButton");
+      const installDismiss = document.getElementById("pwaInstallDismiss");
+
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (installBanner) installBanner.hidden = false;
+      });
+
+      if (installButton) {
+        installButton.addEventListener("click", () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choice) => {
+              if (choice.outcome === "accepted") {
+                // 用户接受了安装
+              }
+              deferredPrompt = null;
+              if (installBanner) installBanner.hidden = true;
+            });
+          }
+        });
+      }
+
+      if (installDismiss) {
+        installDismiss.addEventListener("click", () => {
+          if (installBanner) installBanner.hidden = true;
+          deferredPrompt = null;
+        });
+      }
+
+      // 已安装后隐藏横幅
+      window.matchMedia("(display-mode: standalone)").addEventListener("change", (e) => {
+        if (e.matches && installBanner) installBanner.hidden = true;
+      });
+
+      // 离线/在线状态
+      const offlineIndicator = document.getElementById("offlineIndicator");
+      const updateOfflineUI = () => {
+        if (offlineIndicator) {
+          offlineIndicator.hidden = navigator.onLine;
+        }
+      };
+      window.addEventListener("online", updateOfflineUI);
+      window.addEventListener("offline", updateOfflineUI);
+      updateOfflineUI();
+    });
+
+    // Service Worker 注册（离线缓存与 PWA 支持）
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => { /* SW 已注册 */ })
+        .catch((err) => console.warn("ServiceWorker 注册失败:", err));
+    }
+  </script>
+</body>
+</html>

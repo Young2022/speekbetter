@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeekBetter 示范音频转换</title>
+<style>
+  :root { --forest:#17342c; --lime:#d7ff67; --line:#e2e8e0; --muted:#68736d; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:32px 18px 60px; background:#f4f6f1; color:#17342c; font:15px/1.6 "Segoe UI","Microsoft YaHei",sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; }
+  h1 { margin:0 0 6px; font-size:26px; }
+  .lede { margin:0 0 24px; color:var(--muted); }
+  .drop { display:grid; place-items:center; gap:10px; padding:38px 20px; border:2px dashed #cfd8cd; border-radius:14px; background:#fff; text-align:center; cursor:pointer; transition:.18s ease; }
+  .drop:hover, .drop.is-over { border-color:var(--forest); background:#fbfdf8; }
+  .drop strong { font-size:17px; }
+  .drop span { color:var(--muted); font-size:13px; }
+  .drop input { display:none; }
+  .note { margin:18px 0 0; padding:13px 15px; border-radius:9px; background:#e9ede5; color:#4d5c54; font-size:13px; }
+  .note b { color:#2f3f36; }
+  table { width:100%; margin-top:22px; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 0 var(--line); }
+  th, td { padding:9px 12px; text-align:left; font-size:13px; border-bottom:1px solid #eef1ea; }
+  th { background:#f7f9f4; color:var(--muted); font-weight:700; font-size:12px; }
+  tr:last-child td { border-bottom:0; }
+  .ok { color:#2e7d32; font-weight:700; }
+  .warn { color:#c02a1c; font-weight:700; }
+  select { height:30px; padding:0 8px; border:1px solid var(--line); border-radius:5px; background:#fff; font-size:13px; }
+  .code { font-family:Consolas,monospace; font-size:12px; }
+  a { color:var(--forest); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>示范音频转换</h1>
+  <p class="lede">把手机录的原始音频拖进来，浏览器会转成引擎需要的格式（PCM / 单声道 / 22050 Hz / 16 bit），并按题目 id 命名下载。</p>
+
+  <label class="drop" id="drop">
+    <strong>把音频文件拖到这里，或点击选择</strong>
+    <span>支持 m4a / mp3 / wav / ogg，一次可以选多个</span>
+    <input type="file" id="picker" accept="audio/*,.m4a,.mp3,.wav,.ogg" multiple />
+  </label>
+
+  <p class="note">
+    <b>怎么用：</b>用手机录一遍 → 传到电脑 → 拖进上面的框 → 一键下载 → 把下载的文件放进项目的
+    <span class="code">assets/audio/</span> 目录。<br>
+    <b>念什么：</b>生活/职场/旅行题念屏幕上那一句；雅思/托福/四六级题念「示范回答」那一段。
+    完整清单见 <a href="../RECORDING.md">RECORDING.md</a>。<br>
+    <b>转换会做什么：</b>降成单声道、重采样到 22050 Hz、写成 16 bit PCM。不会压缩音质以外的东西。
+  </p>
+
+  <table id="table" hidden>
+    <thead><tr><th>源文件</th><th>时长</th><th>对应题目</th><th>状态</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+
+<script src="../data/modules.js"></script>
+<script>
+const TARGET_SR = 22050;
+// 模块是唯一数据源：所有句子的 id 摊平出来，就是"可以配示范音频的题目清单"
+const SENTENCES = (window.SPEEKBETTER_MODULES || []).flatMap((m) => (m.sentences || []));
+const promptIds = SENTENCES.map((s) => s.id);
+const tbody = document.getElementById("rows");
+const table = document.getElementById("table");
+
+function toWav(samples, sampleRate) {
+  const bytes = samples.length * 2;
+  const buf = new ArrayBuffer(44 + bytes);
+  const view = new DataView(buf);
+  const str = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+  str(0, "RIFF"); view.setUint32(4, 36 + bytes, true); str(8, "WAVE");
+  str(12, "fmt "); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+  str(36, "data"); view.setUint32(40, bytes, true);
+  let o = 44;
+  for (let i = 0; i < samples.length; i++, o += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return new Blob([buf], { type: "audio/wav" });
+}
+
+function guessId(name) {
+  const base = name.replace(/\.[^.]+$/, "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
+  const hit = promptIds.find((id) => id === base);
+  if (hit) return hit;
+  const loose = promptIds.find((id) => base.includes(id) || id.includes(base));
+  return loose || "";
+}
+
+function resample(input, from, to) {
+  if (from === to) return input;
+  const ratio = from / to;
+  const out = new Float32Array(Math.round(input.length / ratio));
+  for (let i = 0; i < out.length; i++) {
+    const pos = i * ratio;
+    const i0 = Math.floor(pos);
+    const i1 = Math.min(input.length - 1, i0 + 1);
+    const frac = pos - i0;
+    out[i] = input[i0] * (1 - frac) + input[i1] * frac;
+  }
+  return out;
+}
+
+async function handleFiles(files) {
+  table.hidden = false;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new Ctx();
+  for (const file of files) {
+    const row = document.createElement("tr");
+    const guess = guessId(file.name);
+    const options = ['<option value="">— 选择题目 —</option>']
+      .concat(promptIds.map((id) => `<option value="${id}"${id === guess ? " selected" : ""}>${id}</option>`));
+    row.innerHTML = `
+      <td class="code">${file.name}</td>
+      <td class="seconds">读取中…</td>
+      <td><select>${options}</select></td>
+      <td class="state">等待</td>`;
+    tbody.appendChild(row);
+    const secondsCell = row.querySelector(".seconds");
+    const stateCell = row.querySelector(".state");
+
+    try {
+      const buf = await file.arrayBuffer();
+      const decoded = await ctx.decodeAudioData(buf.slice(0));
+      const ch = decoded.numberOfChannels;
+      const len = decoded.length;
+      const mono = new Float32Array(len);
+      for (let c = 0; c < ch; c++) {
+        const data = decoded.getChannelData(c);
+        for (let i = 0; i < len; i++) mono[i] += data[i] / ch;
+      }
+      const rs = resample(mono, decoded.sampleRate, TARGET_SR);
+      const wav = toWav(rs, TARGET_SR);
+      secondsCell.textContent = decoded.duration.toFixed(1) + "s";
+      stateCell.innerHTML = '<span class="ok">已转换</span>';
+      const download = () => {
+        const id = row.querySelector("select").value;
+        if (!id) { stateCell.innerHTML = '<span class="warn">还没选题目</span>'; return; }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(wav);
+        a.download = `${id}.wav`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        stateCell.innerHTML = `<span class="ok">已下载 ${id}.wav</span>`;
+      };
+      const btn = document.createElement("button");
+      btn.textContent = "下载";
+      btn.style.cssText = "margin-left:8px;height:26px;padding:0 10px;border:1px solid #cfd8cd;border-radius:5px;background:#fff;cursor:pointer;font-size:12px;";
+      btn.onclick = download;
+      stateCell.appendChild(btn);
+    } catch (err) {
+      secondsCell.textContent = "—";
+      stateCell.innerHTML = `<span class="warn">读不出来：${err && err.message ? err.message : err}</span>`;
+    }
+  }
+  ctx.close().catch(() => {});
+}
+
+const drop = document.getElementById("drop");
+const picker = document.getElementById("picker");
+drop.addEventListener("click", () => picker.click());
+picker.addEventListener("change", () => { if (picker.files.length) handleFiles([...picker.files]); });
+["dragenter", "dragover"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add("is-over"); }));
+["dragleave", "drop"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove("is-over"); }));
+drop.addEventListener("drop", (ev) => {
+  const files = [...(ev.dataTransfer.files || [])].filter((f) => f.type.startsWith("audio") || /\.(m4a|mp3|wav|ogg|aac|flac)$/i.test(f.name));
+  if (files.length) handleFiles(files);
+});
+</script>
+</body>
+</html>

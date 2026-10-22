@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeekBetter 句子切分</title>
+<style>
+  :root { --forest:#17342c; --line:#e2e8e0; --muted:#68736d; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:32px 18px 60px; background:#f4f6f1; color:#17342c; font:15px/1.6 "Segoe UI","Microsoft YaHei",sans-serif; }
+  .wrap { max-width:920px; margin:0 auto; }
+  h1 { margin:0 0 6px; font-size:26px; }
+  .lede { margin:0 0 22px; color:var(--muted); }
+  .drop { display:grid; place-items:center; gap:8px; padding:32px 20px; border:2px dashed #cfd8cd; border-radius:14px; background:#fff; text-align:center; cursor:pointer; }
+  .drop:hover,.drop.is-over { border-color:var(--forest); background:#fbfdf8; }
+  .drop input { display:none; }
+  .note { margin:16px 0 0; padding:13px 15px; border-radius:9px; background:#e9ede5; color:#4d5c54; font-size:13px; }
+  .bar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:18px 0 10px; }
+  .bar button { height:34px; padding:0 14px; border:1px solid #cfd8cd; border-radius:6px; background:#fff; font-size:13px; font-weight:700; cursor:pointer; }
+  .bar button.primary { border-color:var(--forest); background:var(--forest); color:#fff; }
+  .bar button:disabled { opacity:.45; cursor:default; }
+  table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 0 var(--line); }
+  th,td { padding:8px 11px; text-align:left; font-size:13px; border-bottom:1px solid #eef1ea; vertical-align:middle; }
+  th { background:#f7f9f4; color:var(--muted); font-weight:700; font-size:12px; }
+  tr:last-child td { border-bottom:0; }
+  .code { font-family:Consolas,monospace; font-size:12px; }
+  select { height:30px; padding:0 8px; border:1px solid var(--line); border-radius:5px; background:#fff; font-size:13px; max-width:250px; }
+  .muted { color:var(--muted); }
+  .ok { color:#2e7d32; font-weight:700; }
+  .warn { color:#c02a1c; font-weight:700; }
+  .rowplay { height:26px; padding:0 9px; border:1px solid #cfd8cd; border-radius:5px; background:#fff; cursor:pointer; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>句子切分</h1>
+  <p class="lede">把你已有的长音频（跟读合集、小白对话那类）按静音切成一句一句，挑着配给题目。</p>
+
+  <label class="drop" id="drop">
+    <strong>把音频文件拖到这里，或点击选择</strong>
+    <span>mp3 / m4a / wav，一个文件能切出几十到几百句</span>
+    <input type="file" id="picker" accept="audio/*,.mp3,.m4a,.wav,.ogg" />
+  </label>
+
+  <p class="note">
+    切分靠静音判断：安静超过 <b>0.35 秒</b>就算断句，最短的句子 <b>0.3 秒</b>，最长 <b>25 秒</b>。<br>
+    切完在下面逐句试听，右侧下拉选题目，选好后点「下载已选」——会按 <span class="code">题目 id.wav</span> 命名存到下载目录。
+  </p>
+
+  <div class="bar" id="bar" hidden>
+    <button class="primary" id="downloadAll">下载已选</button>
+    <button id="downloadZipHint" disabled>已选 0 句</button>
+    <span class="muted" id="summary"></span>
+  </div>
+
+  <table id="table" hidden>
+    <thead><tr><th>#</th><th>时长</th><th>试听</th><th>对应题目</th><th>状态</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+
+<script src="../data/modules.js"></script>
+<script>
+// 模块是唯一数据源：摊平成"句子清单"，id = 示范音频文件名
+const SENTENCES = (window.SPEEKBETTER_MODULES || []).flatMap((m) => (m.sentences || []));
+const opts = () => ['<option value="">— 不导出 —</option>'].concat(
+  SENTENCES.map((s) => `<option value="${s.id}">${s.id} · ${s.title || s.prompt}</option>`));
+
+let segments = [];
+let sampleRate = 22050;
+let audioCtx = null;
+let playHead = null;
+
+function toWav(samples, sr) {
+  const bytes = samples.length * 2;
+  const buf = new ArrayBuffer(44 + bytes);
+  const v = new DataView(buf);
+  const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  str(0, "RIFF"); v.setUint32(4, 36 + bytes, true); str(8, "WAVE");
+  str(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+  v.setUint16(22, 1, true); v.setUint32(24, sr, true);
+  v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, "data"); v.setUint32(40, bytes, true);
+  let o = 44;
+  for (let i = 0; i < samples.length; i++, o += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return new Blob([buf], { type: "audio/wav" });
+}
+
+function segment(samples, sr) {
+  const frame = Math.max(1, Math.round(sr * 0.01));       // 10ms 一帧
+  const n = Math.floor(samples.length / frame);
+  const rms = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    let sum = 0;
+    for (let j = 0; j < frame; j++) { const s = samples[i * frame + j]; sum += s * s; }
+    rms[i] = Math.sqrt(sum / frame);
+  }
+  const sorted = Array.from(rms).sort((a, b) => a - b);
+  const floor = sorted[Math.floor(sorted.length * 0.1)] || 0;
+  const peak = sorted[Math.floor(sorted.length * 0.95)] || 0;
+  const threshold = Math.max(floor * 2.5, floor + (peak - floor) * 0.12, 1e-4);
+  const voiced = Array.from(rms, (r) => r > threshold);
+
+  const minGap = 35;          // 静音超过 0.35s 断句
+  const out = [];
+  let start = -1;
+  let silence = 0;
+  for (let i = 0; i < n; i++) {
+    if (voiced[i]) {
+      if (start < 0) start = i;
+      silence = 0;
+    } else if (start >= 0) {
+      silence++;
+      if (silence >= minGap) {
+        out.push([start, i - silence]);
+        start = -1;
+        silence = 0;
+      }
+    }
+  }
+  if (start >= 0) out.push([start, n]);
+
+  const pad = Math.round(sr * 0.04);
+  return out
+    .map(([a, b]) => {
+      const from = Math.max(0, (a - pad) * frame);
+      const to = Math.min(samples.length, (b + pad) * frame);
+      return { from, to, seconds: (to - from) / sr };
+    })
+    .filter((s) => s.seconds >= 0.3 && s.seconds <= 25);
+}
+
+async function handleFile(file) {
+  const bar = document.getElementById("bar");
+  const table = document.getElementById("table");
+  const rows = document.getElementById("rows");
+  const summary = document.getElementById("summary");
+  bar.hidden = false; table.hidden = false; rows.innerHTML = "";
+  summary.textContent = "正在解码…";
+
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  const buf = await file.arrayBuffer();
+  const decoded = await audioCtx.decodeAudioData(buf.slice(0));
+  const ch = decoded.numberOfChannels;
+  const len = decoded.length;
+  const mono = new Float32Array(len);
+  for (let c = 0; c < ch; c++) {
+    const d = decoded.getChannelData(c);
+    for (let i = 0; i < len; i++) mono[i] += d[i] / ch;
+  }
+  sampleRate = 22050;
+  const segs = segment(mono, decoded.sampleRate);
+  segments = segs.map((s) => ({ ...s, data: mono.slice(Math.floor(s.from), Math.ceil(s.to)) }));
+
+  summary.textContent = `共 ${segments.length} 句 · 源文件 ${decoded.duration.toFixed(0)} 秒`;
+
+  segments.forEach((s, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="code">${i + 1}</td>
+      <td class="code">${s.seconds.toFixed(1)}s</td>
+      <td><button class="rowplay">▶</button></td>
+      <td><select>${opts()}</select></td>
+      <td class="state muted">—</td>`;
+    rows.appendChild(tr);
+    tr.querySelector("button").onclick = () => playSeg(i);
+    tr.querySelector("select").onchange = () => updateCount();
+  });
+  updateCount();
+}
+
+function playSeg(i) {
+  if (!audioCtx) return;
+  const s = segments[i];
+  if (!s) return;
+  if (playHead) { try { playHead.stop(); } catch {} playHead = null; }
+  const src = audioCtx.createBufferSource();
+  const b = audioCtx.createBuffer(1, s.data.length, sampleRate);
+  b.copyToChannel(s.data, 0);
+  src.buffer = b;
+  src.connect(audioCtx.destination);
+  src.start();
+  playHead = src;
+}
+
+function updateCount() {
+  const selects = [...document.querySelectorAll("#rows select")];
+  const chosen = selects.filter((s) => s.value);
+  const dup = {};
+  chosen.forEach((s) => { dup[s.value] = (dup[s.value] || 0) + 1; });
+  document.getElementById("downloadZipHint").textContent = `已选 ${chosen.length} 句`;
+  document.getElementById("downloadZipHint").disabled = !chosen.length;
+  selects.forEach((s) => {
+    const cell = s.closest("tr").querySelector(".state");
+    if (s.value && dup[s.value] > 1) cell.innerHTML = '<span class="warn">同一题配了多段</span>';
+    else if (s.value) cell.innerHTML = '<span class="ok">已选</span>';
+    else cell.textContent = "—";
+  });
+}
+
+document.getElementById("downloadAll").onclick = () => {
+  const selects = [...document.querySelectorAll("#rows select")];
+  const seen = new Set();
+  selects.forEach((s, i) => {
+    if (!s.value) return;
+    if (seen.has(s.value)) { s.closest("tr").querySelector(".state").innerHTML = '<span class="warn">重复，跳过</span>'; return; }
+    seen.add(s.value);
+    const seg = segments[i];
+    const wav = toWav(seg.data, sampleRate);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(wav);
+    a.download = `${s.value}.wav`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    s.closest("tr").querySelector(".state").innerHTML = `<span class="ok">已下载 ${s.value}.wav</span>`;
+  });
+};
+
+const drop = document.getElementById("drop");
+const picker = document.getElementById("picker");
+drop.addEventListener("click", () => picker.click());
+picker.addEventListener("change", () => { if (picker.files[0]) handleFile(picker.files[0]); });
+["dragenter", "dragover"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add("is-over"); }));
+["dragleave", "drop"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove("is-over"); }));
+drop.addEventListener("drop", (ev) => {
+  const f = (ev.dataTransfer.files || [])[0];
+  if (f) handleFile(f);
+});
+</script>
+</body>
+</html>
